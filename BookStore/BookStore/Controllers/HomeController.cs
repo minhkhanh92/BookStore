@@ -6,27 +6,37 @@ using System.Web.Mvc;
 
 namespace BookStore.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
+        BookBLL bookBLL = new BookBLL();
+
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
+            List<Book> list = bookBLL.GetListBook();
 
-            return View();
+            return View(list);
         }
 
-        public ActionResult About()
+        public ActionResult Search(String title)
         {
-            ViewBag.Message = "Your app description page.";
-
-            return View();
+            if (string.IsNullOrEmpty(title))
+            {
+                return RedirectToAction("Index");
+            }
+            List<Book> list = bookBLL.Search(title);
+            if (list.Count == 0)
+            {
+                ViewBag.name = title;
+                return View("NotFound");
+            }
+            return View("Index", list);
         }
 
-        public ActionResult Contact()
+        protected override void Dispose(bool disposing)
         {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            base.Dispose(disposing);
+            bookBLL.Dispose();
         }
     }
 }
